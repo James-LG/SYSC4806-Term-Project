@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<!-- BOOTSTRAP -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-<!-- END BOOTSTRAP -->
-
-<link rel="stylesheet" href="./css/index.css">
+<head>
+  <!-- BOOTSTRAP -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+  <!-- END BOOTSTRAP -->
+  <link rel="stylesheet" href="./css/index.css">
+</head>
 
 <body>
     <!-- HEADER BAR -->
@@ -18,7 +18,7 @@
         </div>
       </div>
       <div class="wrapper header-wrapper" id="right-header-bar">
-        <div class="col-md header-column" id="user-icon">
+        <div class="col-md header-column">
           <img id="user-icon" src="./assets/default-avatar.png">
         </div>
       </div>
@@ -27,22 +27,24 @@
 
     <!-- MAIN WINDOW -->
     <div id="main-window">
-        <div id="context-pane">
-            <h3>Login</h3>
-            <div id="username-input">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username"></input>
-            </div>
-            <div id="password-input">
-                <label for="password">Password:</label>
-                <input type="password" id="pass" name="password" minlength="8" required>
-            </div>
+      <h3>Login</h3>
+      <div id="username-input">
+          <label for="username">Username</label><br/>
+          <input class="inputs" type="text" id="username" name="username"></input>
+      </div>
+      <div id="password-input">
+          <label for="password">Password</label><br/>
+          <input class="inputs" type="password" id="pass" name="password" minlength="8" required></input>
+      </div>
 
-            <div id="credentials-submit">
-                <input type="submit" value="Login">
-                Don't have an account yet? <a href="./signup.html">Sign up</a>
-            </div>
-        </div>
+      <div id="credentials-submit">
+          <a href="/profile">
+            <input type="submit" value="Login">
+          </a>
+          <p>
+            Don't have an account? <a href="./signup.html">Sign up</a>
+          </p>
+      </div>
     </div>
     <!-- END MAIN WINDOW -->
 </body>

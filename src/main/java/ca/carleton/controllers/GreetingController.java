@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 @Controller()
 public class GreetingController {
 
-    @GetMapping("/greeting")
-    public String greeting(Model model) {
-        return "greeting";
+    @GetMapping("/profile")
+    public String profile(Model model) {
+        return "profile";
     }
 }
