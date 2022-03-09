@@ -1,0 +1,57 @@
+body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+h1 {
+    margin-top: 10px;
+}
+h3 {
+    margin-top: 0px;
+}
+#header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #eeeef2;
+    margin: 0px;
+    width: 100vw;
+    height: 10vh;
+    padding: 10px 20px;
+    min-width: 650px;
+}
+.header-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+#user-icon {
+    height: 40px;
+    width: 40px;
+}
+#main-window {
+    position: fixed;
+    width: 100vw;
+    height: 90vh;
+    background-color: #dddddd;
+}
+#context-pane {
+    position: relative;
+    width: 30%;
+    height: 50%;
+    left: 35%;
+    top: 20%;
+    background-color: #ffffff;
+    padding: 20px;
+}
+#username-input {
+    border-top: 1px solid black;
+    padding: 10px;
+}
+#password-input {
+    border-bottom: 1px solid black;
+    padding: 10px;
+}
+#credentials-submit {
+    padding: 10px;
+}
