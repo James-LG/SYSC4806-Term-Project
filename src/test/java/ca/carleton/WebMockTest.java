@@ -19,9 +19,9 @@ public class WebMockTest {
 
     @Test
     public void greetingShouldReturnPlaceholder() throws Exception {
-        this.mockMvc.perform(get("/greeting"))
+        this.mockMvc.perform(get("/profile"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Placeholder")));
+                .andExpect(content().string(containsString("AppX")));
     }
 }
