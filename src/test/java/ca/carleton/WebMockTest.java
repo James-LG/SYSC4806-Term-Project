@@ -1,6 +1,6 @@
 package ca.carleton;
 
-import ca.carleton.controllers.GreetingController;
+import ca.carleton.controllers.AccountController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,14 +12,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(GreetingController.class)
+@WebMvcTest(AccountController.class)
 public class WebMockTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     public void greetingShouldReturnPlaceholder() throws Exception {
-        this.mockMvc.perform(get("/profile"))
+        this.mockMvc.perform(get("/"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("AppX")));

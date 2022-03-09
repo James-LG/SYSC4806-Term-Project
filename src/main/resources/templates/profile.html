@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<html xmlns:th="https://www.thymeleaf.org">
 <head>
 <!-- BOOTSTRAP -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -19,7 +20,7 @@
     </div>
     <div class="wrapper header-wrapper" id="right-header-bar">
         <div class="col-md header-column">
-            <a href="index.html">
+            <a href="/">
                 <input type="submit" id="logout" value="Log out"></input>
             </a>
         </div>
@@ -32,9 +33,8 @@
       <img id="user-icon" src="assets/default-avatar.png">
       <div id="context-pane">
         <h3>Profile</h3>
-        <p class="profile-info" th:field="*{name}" id="username"> ... </p>
-        <p class="profile-info" th:field="*{password}" id="password"> ... </p>
-        <p>
+        <p class="profile-info" th:text="${customer.username}" id="username">  </p>
+        <p class="profile-info" th:text="${customer.password}" id="password"> </p>
       </div>
     </div>
     <!-- END MAIN WINDOW -->

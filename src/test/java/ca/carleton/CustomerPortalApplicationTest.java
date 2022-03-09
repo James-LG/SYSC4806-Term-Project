@@ -2,7 +2,7 @@ package ca.carleton;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import ca.carleton.controllers.GreetingController;
+import ca.carleton.controllers.AccountController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class CustomerPortalApplicationTest {
 
     @Autowired
-    private GreetingController controller;
+    private AccountController controller;
 
     @Test
     public void contextLoads() throws Exception {

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+<html xmlns:th="https://www.thymeleaf.org">
 <head>
   <!-- BOOTSTRAP -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
   <!-- END BOOTSTRAP -->
-  <link rel="stylesheet" href="./css/index.css">
+  <link rel="stylesheet" href="css/index.css">
 </head>
 
 <body>
@@ -19,7 +20,7 @@
       </div>
       <div class="wrapper header-wrapper" id="right-header-bar">
         <div class="col-md header-column">
-          <img id="user-icon" src="./assets/default-avatar.png">
+          <img id="user-icon" src="assets/default-avatar.png">
         </div>
       </div>
     </div>
@@ -27,22 +28,26 @@
 
     <!-- MAIN WINDOW -->
     <div id="main-window">
-      <h3>Sign Up</h3>
+      <form action="#" th:action="@{/}" th:object="${customer}" method="post">
+      <h3>Login</h3>
       <div id="username-input">
           <label for="username">Username</label><br/>
-          <input class="inputs" type="text" id="username" name="username"></input>
+          <input class="inputs" type="text" id="username" th:field="*{username}"></input>
       </div>
       <div id="password-input">
-          <label for="password">Password (minimum 8 characters)</label><br/>
-          <input class="inputs" type="password" id="pass" name="password" minlength="8" required></input>
+          <label for="password">Password</label><br/>
+          <input class="inputs" type="password" id="pass" th:field="*{password}" minlength="8" required></input>
       </div>
 
       <div id="credentials-submit">
-          <input type="submit" value="Create Account">
+          <a href="/profile">
+            <input type="submit" value="Login">
+          </a>
           <p>
-            Already have an account? <a href="./index.html">Sign in</a>
+            Don't have an account? <a href="/signup">Sign up</a>
           </p>
       </div>
+      </form>
     </div>
     <!-- END MAIN WINDOW -->
 </body>
