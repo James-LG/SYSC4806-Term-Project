@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller()
 public class AccountController {
+    private Customer customer;
 
     @GetMapping("/")
     public String loginForm(Model model){
@@ -16,6 +17,7 @@ public class AccountController {
 
     @PostMapping("/")
     public String loginSubmit(Model model, @ModelAttribute Customer customer){
+        this.customer = customer;
         return "profile";
     }
 
@@ -35,6 +37,12 @@ public class AccountController {
         return "profile";
     }
 
+    @RequestMapping("/makeRequest")
+    public String requestData(Model model){
+        model.addAttribute("customer", customer);
+        System.out.println("MAKE API CALL");
+        return "profile";
+    }
 
 
 }
