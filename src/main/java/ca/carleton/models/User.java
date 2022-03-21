@@ -8,6 +8,7 @@ public abstract class User {
     private String username;
     private String name;
     private String password;
+    private int subscription;
 
     public User(String username, String name, String password) {
         this.username = username;
@@ -42,6 +43,10 @@ public abstract class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public int getSubscription(){ return subscription; }
+
+    public void setSubscription(int sub) {subscription = sub;}
 
     @Override
     public String toString() {
