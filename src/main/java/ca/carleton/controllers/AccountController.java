@@ -60,4 +60,10 @@ public class AccountController {
         return "admin";
     }
 
+    @PostMapping("/adminDash")
+    public String changeSub(@ModelAttribute User user, Model model){
+
+        user.setSubscription(true);
+        return "admin";
+    }
 }

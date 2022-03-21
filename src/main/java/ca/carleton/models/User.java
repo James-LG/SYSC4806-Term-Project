@@ -8,12 +8,13 @@ public abstract class User {
     private String username;
     private String name;
     private String password;
-    private int subscription;
+    private boolean subscription;
 
     public User(String username, String name, String password) {
         this.username = username;
         this.name = name;
         this.password = password;
+        subscription = false;
     }
 
     public User() {
@@ -44,9 +45,9 @@ public abstract class User {
         this.password = password;
     }
 
-    public int getSubscription(){ return subscription; }
+    public boolean getSubscription(){ return subscription; }
 
-    public void setSubscription(int sub) {subscription = sub;}
+    public void setSubscription(boolean sub) {subscription = sub;}
 
     @Override
     public String toString() {
