@@ -57,6 +57,11 @@ public class AccountController {
         return new ModelAndView("profile");
     }
 
+    @GetMapping("/makeRequest/{username}")
+    public String requestData(@PathVariable String username){
+        System.out.println("MAKE API CALL");
+        return String.format("redirect:/profile/%s", username);
+    }
 
 
 }
