@@ -36,6 +36,10 @@
         <p class="profile-info" th:text="${customer.username}" id="username">  </p>
         <p class="profile-info" th:text="${customer.password}" id="password"> </p>
       </div>
+        <a th:href="@{'/makeRequest/' + ${customer.username}}">
+            <input type="submit" id="makeRequest" value="Make a Request"></input>
+        </a>
+
     </div>
     <!-- END MAIN WINDOW -->
 </body>
