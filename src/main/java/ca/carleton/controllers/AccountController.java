@@ -1,7 +1,7 @@
 package ca.carleton.controllers;
 
 import ca.carleton.models.Customer;
-import ca.carleton.models.User;
+import ca.carleton.models.Users;
 import ca.carleton.models.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ public class AccountController {
 
     @GetMapping("/profile/{username}")
     public ModelAndView profile(@PathVariable String username, Model model) {
-        User user = this.userRepository.findByUsername(username);
+        Users user = this.userRepository.findByUsername(username);
 
         if (user == null) {
             model.addAttribute("username", username);
