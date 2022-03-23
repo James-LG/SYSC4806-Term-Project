@@ -5,13 +5,17 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Date;
 import java.util.List;
 
 @DataJpaTest
-public class UserRepositoryTest {
+@AutoConfigureTestDatabase
+@ActiveProfiles("test")
+public class UsersRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
@@ -54,14 +58,14 @@ public class UserRepositoryTest {
     @Test
     public void findByName_shouldReturnEveryUserWithName() {
         // arrange
-        User customer = new Customer("a", "a", "a", Date.valueOf("1984-01-01"));
-        User admin = new Admin("a2", "a", "a");
+        Users customer = new Customer("a", "a", "a", Date.valueOf("1984-01-01"));
+        Users admin = new Admin("a2", "a", "a");
 
         userRepository.save(customer);
         userRepository.save(admin);
 
         // act
-        List<User> users = userRepository.findByName("a");
+        List<Users> users = userRepository.findByName("a");
 
         // assert
         assertThat(users).hasSize(2);
