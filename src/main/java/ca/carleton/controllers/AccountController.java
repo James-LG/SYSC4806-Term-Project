@@ -2,7 +2,7 @@ package ca.carleton.controllers;
 
 import ca.carleton.models.Admin;
 import ca.carleton.models.Customer;
-import ca.carleton.models.Users;
+import ca.carleton.models.User;
 import ca.carleton.models.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,7 +48,7 @@ public class AccountController {
 
     @GetMapping("/profile/{username}")
     public ModelAndView profile(@PathVariable String username, Model model) {
-        Users user = this.userRepository.findByUsername(username);
+        User user = this.userRepository.findByUsername(username);
 
         if (user == null) {
             model.addAttribute("username", username);
@@ -61,7 +61,7 @@ public class AccountController {
     }
 
     @GetMapping("/adminDash")
-    public String adminForm(@ModelAttribute Users user, Model model){
+    public String adminForm(@ModelAttribute User user, Model model){
 
         if (user instanceof Admin) {
             return String.format("redirect:/adminDash/%s", user.getUsername());
@@ -76,7 +76,7 @@ public class AccountController {
     }
 
   @PostMapping("/adminDash")
-    public String changeSub(@ModelAttribute Users user, Model model){
+    public String changeSub(@ModelAttribute User user, Model model){
   
         if (user.getSubscription() == true) {
             user.setSubscription(false);
