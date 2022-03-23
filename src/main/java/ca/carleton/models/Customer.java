@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 import java.sql.Date;
 
 @Entity
-public class Customer extends Users {
+public class Customer extends User {
     private Date accessExpiration;
 
     public Customer(String username, String name, String password, Date accessExpiration) {

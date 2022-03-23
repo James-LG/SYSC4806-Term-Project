@@ -1,24 +1,23 @@
 package ca.carleton.models;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public abstract class Users {
+public abstract class User {
     private String username;
     private String name;
     private String password;
     private boolean subscription;
 
-    public Users(String username, String name, String password) {
+    public User(String username, String name, String password) {
         this.username = username;
         this.name = name;
         this.password = password;
         subscription = false;
     }
 
-    public Users() {
+    public User() {
     }
 
     @Id
