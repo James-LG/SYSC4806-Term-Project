@@ -4,6 +4,7 @@ abstract class User{
 -username: String
 -name: String
 -password: String
+-subscription: Boolean
 +User(username: String, name: String, password: String)
 +getUsername(): String
 +setUsername(username: String): void
@@ -11,6 +12,8 @@ abstract class User{
 +setName(name: String): void
 +getPassword(): String
 +setPassword(password: String): void
++getSubscription(): Boolean
++setSubscription(Boolean sub): void
 +toString(): String
 }
 

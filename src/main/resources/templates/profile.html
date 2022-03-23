@@ -20,8 +20,14 @@
     </div>
     <div class="wrapper header-wrapper" id="right-header-bar">
         <div class="col-md header-column">
+            <button onclick="change_text()" class="button" id="upgrade">Upgrade to Premium</button>
+            <script>
+                function change_text(){
+                    document.getElementById("subscription").innerHTML = "PAID";
+                }
+            </script>
             <a href="/">
-                <input type="submit" id="logout" value="Log out"></input>
+                <input type="submit" class="button" value="Log out"></input>
             </a>
         </div>
     </div>
@@ -32,9 +38,12 @@
     <div id="main-window">
       <img id="user-icon" src="assets/default-avatar.png">
       <div id="context-pane">
-        <h3>Profile</h3>
-        <p class="profile-info" th:text="${customer.username}" id="username">  </p>
-        <p class="profile-info" th:text="${customer.password}" id="password"> </p>
+          <h3>Profile</h3>
+          <p class="profile-info" th:text="${customer.username}" id="username"> </p>
+          <p class="profile-info" th:text="${customer.password}" id="password"> </p>
+          <br> Subscription:
+            <div class="profile-info" th:text="${customer.subscription}" id="subscription"> FREE </div>
+          </br>
       </div>
     </div>
     <!-- END MAIN WINDOW -->

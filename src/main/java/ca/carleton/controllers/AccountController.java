@@ -3,12 +3,9 @@ package ca.carleton.controllers;
 import ca.carleton.models.Admin;
 import ca.carleton.models.Customer;
 import ca.carleton.models.User;
-<<<<<<< HEAD
-=======
 import ca.carleton.models.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
->>>>>>> fe61d8c30c4d4823758166bdb2d28bc7a36a974d
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -62,18 +59,6 @@ public class AccountController {
         
         return new ModelAndView("profile");
     }
-/*
-    @PostMapping("/manageuser")
-    public String manageUsers(Model model){
-
-        User user = this.userRepository.findByUsername(username);
-
-        if (user == admin) {
-
-        }
-        return "manageuser";
-    }
-*/
 
     @GetMapping("/adminDash")
     public String adminForm(@ModelAttribute User user, Model model){
@@ -87,7 +72,19 @@ public class AccountController {
     @PostMapping("/adminDash")
     public String changeSub(@ModelAttribute User user, Model model){
 
-        user.setSubscription(true);
+        if (user.getSubscription() == true) {
+            user.setSubscription(false);
+        } else {
+            user.setSubscription(true);
+        }
         return "admin";
+    }
+
+    @PostMapping("/profile")
+    public String upgrade(@ModelAttribute Customer customer, Model model){
+
+        customer.setSubscription(true);
+
+        return "upgrade";
     }
 }

@@ -20,6 +20,15 @@ h3 {
     align-items: center;
 }
 
+.button {
+    color: black;
+    margin: 5px;
+}
+
+.profile-info {
+    display: inline-block;
+}
+
 #header-bar {
   display: flex;
   align-items: center;
@@ -51,6 +60,3 @@ h3 {
   padding: 20px;
 }
 
-#logout {
-    color: black;
-}
