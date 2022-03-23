@@ -9,11 +9,13 @@ public abstract class Users {
     private String username;
     private String name;
     private String password;
+    private boolean subscription;
 
     public Users(String username, String name, String password) {
         this.username = username;
         this.name = name;
         this.password = password;
+        subscription = false;
     }
 
     public Users() {
@@ -43,6 +45,10 @@ public abstract class Users {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public boolean getSubscription(){ return subscription; }
+
+    public void setSubscription(boolean sub) {subscription = sub;}
 
     @Override
     public String toString() {

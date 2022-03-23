@@ -28,6 +28,10 @@ h3 {
   padding-left: 8px;
 }
 
+.btn {
+    color: black;
+}
+
 #header-bar {
     display: flex;
     align-items: center;
@@ -74,5 +78,5 @@ h3 {
 
 #credentials-submit {
     padding: 5px;
-    color: black;
 }
+
