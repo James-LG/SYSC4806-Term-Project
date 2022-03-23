@@ -1,5 +1,6 @@
 package ca.carleton.controllers;
 
+import ca.carleton.models.Admin;
 import ca.carleton.models.Customer;
 import ca.carleton.models.User;
 import ca.carleton.models.UserRepository;
@@ -19,6 +20,8 @@ public class AccountController {
             UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+    Admin admin = new Admin("AdminSteve", "Steve", "123abc");
 
     @GetMapping("/")
     public String loginForm(Model model){
@@ -57,11 +60,37 @@ public class AccountController {
         return new ModelAndView("profile");
     }
 
+    @GetMapping("/adminDash")
+    public String adminForm(@ModelAttribute User user, Model model){
+
+        if (user instanceof Admin) {
+            return String.format("redirect:/adminDash/%s", user.getUsername());
+        }
+        return "admin";
+    }
+    
     @GetMapping("/makeRequest/{username}")
     public String requestData(@PathVariable String username){
         System.out.println("MAKE API CALL");
         return String.format("redirect:/profile/%s", username);
     }
 
+  @PostMapping("/adminDash")
+    public String changeSub(@ModelAttribute User user, Model model){
+  
+        if (user.getSubscription() == true) {
+            user.setSubscription(false);
+        } else {
+            user.setSubscription(true);
+        }
+        return "admin";
+    }
 
+    @PostMapping("/profile")
+    public String upgrade(@ModelAttribute Customer customer, Model model){
+
+        customer.setSubscription(true);
+
+        return "upgrade";
+    }
 }
