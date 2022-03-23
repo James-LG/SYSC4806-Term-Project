@@ -45,6 +45,10 @@
             <div class="profile-info" th:text="${customer.subscription}" id="subscription"> FREE </div>
           </br>
       </div>
+        <a th:href="@{'/makeRequest/' + ${customer.username}}">
+            <input type="submit" id="makeRequest" value="Make a Request"></input>
+        </a>
+
     </div>
     <!-- END MAIN WINDOW -->
 </body>

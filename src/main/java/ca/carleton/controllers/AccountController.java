@@ -68,10 +68,16 @@ public class AccountController {
         }
         return "admin";
     }
+    
+    @GetMapping("/makeRequest/{username}")
+    public String requestData(@PathVariable String username){
+        System.out.println("MAKE API CALL");
+        return String.format("redirect:/profile/%s", username);
+    }
 
-    @PostMapping("/adminDash")
+  @PostMapping("/adminDash")
     public String changeSub(@ModelAttribute User user, Model model){
-
+  
         if (user.getSubscription() == true) {
             user.setSubscription(false);
         } else {
