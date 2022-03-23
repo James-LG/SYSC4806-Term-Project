@@ -61,7 +61,7 @@ public class AccountController {
     }
 
     @GetMapping("/adminDash")
-    public String adminForm(@ModelAttribute User user, Model model){
+    public String adminForm(@ModelAttribute Users user, Model model){
 
         if (user instanceof Admin) {
             return String.format("redirect:/adminDash/%s", user.getUsername());
@@ -76,7 +76,7 @@ public class AccountController {
     }
 
   @PostMapping("/adminDash")
-    public String changeSub(@ModelAttribute User user, Model model){
+    public String changeSub(@ModelAttribute Users user, Model model){
   
         if (user.getSubscription() == true) {
             user.setSubscription(false);
