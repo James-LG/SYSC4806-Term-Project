@@ -18,6 +18,9 @@
             <h1>AppX</h1>
         </div>
     </div>
+    <form id="logoutForm" method="POST" action="/logout">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    </form>
     <div class="wrapper header-wrapper" id="right-header-bar">
         <div class="col-md header-column">
             <button onclick="change_text()" class="button" id="upgrade">Upgrade to Premium</button>
@@ -26,7 +29,8 @@
                     document.getElementById("subscription").innerHTML = "PAID";
                 }
             </script>
-            <a href="/">
+
+            <a onclick="document.forms['logoutForm'].submit()">
                 <input type="submit" class="button" value="Log out"></input>
             </a>
         </div>
@@ -45,7 +49,7 @@
             <div class="profile-info" th:text="${customer.subscription}" id="subscription"> FREE </div>
           </br>
       </div>
-        <a th:href="@{'/makeRequest/' + ${customer.username}}">
+        <a href="/makeRequest">
             <input type="submit" id="makeRequest" value="Make a Request"></input>
         </a>
 

@@ -3,9 +3,14 @@ package ca.carleton.controllers;
 import ca.carleton.models.Admin;
 import ca.carleton.models.Customer;
 import ca.carleton.models.User;
-import ca.carleton.models.UserRepository;
+import ca.carleton.services.SecurityService;
+import ca.carleton.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,25 +18,46 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller()
 public class AccountController {
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final SecurityService securityService;
 
     @Autowired
     public AccountController(
-            UserRepository userRepository) {
-        this.userRepository = userRepository;
+            UserService userService,
+            SecurityService securityService
+    ) {
+        this.userService = userService;
+        this.securityService = securityService;
     }
-
-    Admin admin = new Admin("AdminSteve", "Steve", "123abc");
 
     @GetMapping("/")
-    public String loginForm(Model model){
-        model.addAttribute("customer", new Customer());
-        return "index";
+    public String index() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
+        User user = userService.findByUsername(principal.getUsername());
+
+        if (user == null) {
+            authentication.setAuthenticated(false);
+        }
+
+        if (authentication.isAuthenticated()) {
+            return "redirect:/profile";
+        }
+        return "redirect:/login";
     }
 
-    @PostMapping("/")
-    public String loginSubmit(Model model, @ModelAttribute Customer customer){
-        return String.format("redirect:/profile/%s", customer.getUsername());
+    @GetMapping("/login")
+    public String loginForm(Model model, String error, String logout) {
+        if (error != null) {
+            model.addAttribute("error", "Your username and password is invalid.");
+        }
+
+        if (logout != null) {
+            model.addAttribute("message", "You have been logged out successfully.");
+        }
+
+        model.addAttribute("customer", new Customer());
+        return "login";
     }
 
     @GetMapping("/signup")
@@ -42,16 +68,19 @@ public class AccountController {
 
     @PostMapping("/signup")
     public String signUpSubmit(Model model, @ModelAttribute Customer customer) {
-        this.userRepository.save(customer);
-        return String.format("redirect:/profile/%s", customer.getUsername());
+        String unencodedPassword = customer.getPassword();
+        this.userService.save(customer);
+        securityService.autoLogin(customer.getUsername(), unencodedPassword);
+
+        return "redirect:/profile";
     }
 
-    @GetMapping("/profile/{username}")
-    public ModelAndView profile(@PathVariable String username, Model model) {
-        User user = this.userRepository.findByUsername(username);
+    @GetMapping("/profile")
+    public ModelAndView profile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userService.findByUsername(userDetails.getUsername());
 
         if (user == null) {
-            model.addAttribute("username", username);
+            model.addAttribute("username", userDetails.getUsername());
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
         }
 
@@ -61,28 +90,36 @@ public class AccountController {
     }
 
     @GetMapping("/adminDash")
-    public String adminForm(@ModelAttribute User user, Model model){
+    public ModelAndView adminForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userService.findByUsername(userDetails.getUsername());
+
+        if (user == null) {
+            model.addAttribute("username", userDetails.getUsername());
+            return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
+        }
 
         if (user instanceof Admin) {
-            return String.format("redirect:/adminDash/%s", user.getUsername());
+            return new ModelAndView("adminDash");
         }
-        return "admin";
+        model.addAttribute("username", userDetails.getUsername());
+        return new ModelAndView("unauthorized", HttpStatus.NOT_FOUND);
     }
     
-    @GetMapping("/makeRequest/{username}")
-    public String requestData(@PathVariable String username){
-        System.out.println("MAKE API CALL");
-        return String.format("redirect:/profile/%s", username);
+    @GetMapping("/makeRequest")
+    public ModelAndView requestData(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userService.findByUsername(userDetails.getUsername());
+
+        if (user == null) {
+            model.addAttribute("username", userDetails.getUsername());
+            return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
+        }
+
+        return new ModelAndView("redirect:/profile");
     }
 
-  @PostMapping("/adminDash")
-    public String changeSub(@ModelAttribute User user, Model model){
-  
-        if (user.getSubscription() == true) {
-            user.setSubscription(false);
-        } else {
-            user.setSubscription(true);
-        }
+    @PostMapping("/adminDash")
+    public String changeSub(@ModelAttribute User user, Model model) {
+        user.setSubscription(!user.getSubscription());
         return "admin";
     }
 
