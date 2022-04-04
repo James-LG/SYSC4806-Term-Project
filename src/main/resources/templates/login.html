@@ -28,21 +28,25 @@
 
     <!-- MAIN WINDOW -->
     <div id="main-window">
-      <form action="#" th:action="@{/}" th:object="${customer}" method="post">
+      <form action="/login" th:object="${customer}" method="POST">
       <h3>Login</h3>
       <div id="username-input">
+          <span th:text="${message}"></span>
           <label for="username">Username</label><br/>
           <input class="inputs" type="text" id="username" th:field="*{username}"></input>
       </div>
       <div id="password-input">
           <label for="password">Password</label><br/>
-          <input class="inputs" type="password" id="pass" th:field="*{password}" minlength="8" required></input>
+          <input class="inputs" type="password" id="password" th:field="*{password}" minlength="8" required></input>
+          <span th:text="${error}"></span>
+      </div>
+
+      <div>
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       </div>
 
       <div id="credentials-submit">
-          <a href="/profile">
-            <input class="btn" type="submit" value="Login">
-          </a>
+          <input class="btn" type="submit" value="Login">
           <p>
             Don't have an account? <a href="/signup">Sign up</a>
           </p>
