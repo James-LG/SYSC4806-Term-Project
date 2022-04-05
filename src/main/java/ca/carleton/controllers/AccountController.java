@@ -68,11 +68,19 @@ public class AccountController {
 
     @PostMapping("/signup")
     public String signUpSubmit(Model model, @ModelAttribute Customer customer) {
-        String unencodedPassword = customer.getPassword();
-        this.userService.save(customer);
-        securityService.autoLogin(customer.getUsername(), unencodedPassword);
 
-        return "redirect:/profile";
+        User user = userService.findByUsername(customer.getUsername());
+
+        if(user == null){
+            String unencodedPassword = customer.getPassword();
+            this.userService.save(customer);
+            securityService.autoLogin(customer.getUsername(), unencodedPassword);
+            return "redirect:/profile";
+        }
+
+        model.addAttribute("message", "Username already exists.");
+        return "/signup";
+
     }
 
     @GetMapping("/profile")
