@@ -5,6 +5,7 @@ import ca.carleton.models.Customer;
 import ca.carleton.models.User;
 import ca.carleton.services.SecurityService;
 import ca.carleton.services.UserService;
+import io.github.bucket4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -16,18 +17,24 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.Duration;
+
 @Controller()
 public class AccountController {
     private final UserService userService;
     private final SecurityService securityService;
+    private final Bucket bucket;
 
     @Autowired
     public AccountController(
             UserService userService,
             SecurityService securityService
     ) {
+        Bandwidth limit = Bandwidth.classic(1000, Refill.greedy(1000, Duration.ofDays(1)));
+
         this.userService = userService;
         this.securityService = securityService;
+        this.bucket = Bucket4j.builder().addLimit(limit).build();
     }
 
     @GetMapping("/")
@@ -120,9 +127,16 @@ public class AccountController {
         if (user == null) {
             model.addAttribute("username", userDetails.getUsername());
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
+        } else {
+            if (user.getSubscription()) {
+                return new ModelAndView("redirect:/profile");
+            } else {
+                if (bucket.tryConsume(1))
+                    return new ModelAndView("redirect:/profile");
+                else
+                    return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
+            }
         }
-
-        return new ModelAndView("redirect:/profile");
     }
 
     @PostMapping("/adminDash")
