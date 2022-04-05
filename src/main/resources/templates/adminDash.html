@@ -7,7 +7,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 <!-- END BOOTSTRAP -->
-<link rel="stylesheet" href="css/adminDash.css">
+<link rel="stylesheet" href="/css/adminDash.css">
 </head>
 
 <body>
@@ -20,7 +20,7 @@
     </div>
     <div class="wrapper header-wrapper" id="right-header-bar">
         <div class="col-md header-column">
-            <a href="/">
+            <a href="/login">
                 <input type="submit" id="logout" value="Log out"></input>
             </a>
         </div>
@@ -41,11 +41,11 @@
               <th> End Date </th>
           </tr>
 
-          <tr>
-              <td th:text="${username}" id="username">username</td>
-              <td th:text="${name}" id="name">name</td>
-              <td th:text="${password}" id="password">pw</td>
-              <td th:text="${subscription}" id="subscription">
+          <tr th:each="user : ${users}">
+              <td th:text="${user.username}"></td>
+              <td th:text="${user.name}"></td>
+              <td th:text="${user.password}"></td>
+              <td th:text="${user.subscription}">
 
                   <div class="select_dropdown">
                       <select>

@@ -3,6 +3,7 @@ package ca.carleton.controllers;
 import ca.carleton.models.Admin;
 import ca.carleton.models.Customer;
 import ca.carleton.models.User;
+import ca.carleton.models.UserRepository;
 import ca.carleton.services.SecurityService;
 import ca.carleton.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ import org.springframework.web.servlet.ModelAndView;
 public class AccountController {
     private final UserService userService;
     private final SecurityService securityService;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     public AccountController(
@@ -41,6 +45,9 @@ public class AccountController {
         }
 
         if (authentication.isAuthenticated()) {
+            if( user instanceof Admin ) {
+                return "redirect:/adminDash";
+            }
             return "redirect:/profile";
         }
         return "redirect:/login";
@@ -116,13 +123,13 @@ public class AccountController {
 
         return new ModelAndView("redirect:/profile");
     }
-
+/*
     @PostMapping("/adminDash")
     public String changeSub(@ModelAttribute User user, Model model) {
         user.setSubscription(!user.getSubscription());
         return "admin";
     }
-
+*/
     @PostMapping("/profile")
     public String upgrade(@ModelAttribute Customer customer, Model model){
 
@@ -130,4 +137,16 @@ public class AccountController {
 
         return "upgrade";
     }
+
+    @RequestMapping("/adminDash")
+    public String getAllCustomers(Model model){
+        model.addAttribute("users", userService.userAll());
+        return "users";
+    }
+/*
+    @PostMapping("/adminDash")
+    private Iterable<User> getAllUsers() {
+        return userService.findAll();
+    }
+ */
 }

@@ -57,7 +57,7 @@ h3 {
   margin:auto;
   position:absolute;
   left:50%;
-  top:50%;
+  top:48%;
   margin-left:-125px;
   margin-top:-90px;
   padding: 20px;
@@ -69,6 +69,10 @@ h3 {
 
 #username-input {
   padding-bottom: 10px;
+}
+
+#name-input {
+    padding-bottom: 10px;
 }
 
 #password-input {

@@ -5,6 +5,7 @@ import javax.persistence.Id;
 
 @Entity
 public abstract class User {
+
     private String username;
     private String name;
     private String password;
