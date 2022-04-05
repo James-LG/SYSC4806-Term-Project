@@ -79,7 +79,7 @@ public class AccountController {
         }
 
         model.addAttribute("message", "Username already exists.");
-        return "/signup";
+        return "signup";
 
     }
 
