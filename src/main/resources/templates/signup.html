@@ -29,6 +29,8 @@
     <div id="main-window">
         <form action="#" th:action="@{/signup}" th:object="${customer}" method="post">
           <h3>Sign Up</h3>
+          
+            <span style="color: red" th:text="${message}"></span>
             <div id="username-input">
                 <label for="username">Username</label><br/>
                 <input class="inputs" type="text" id="username" th:field="*{username}"></input>

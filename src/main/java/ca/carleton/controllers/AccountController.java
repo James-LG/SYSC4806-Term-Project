@@ -6,6 +6,7 @@ import ca.carleton.models.User;
 import ca.carleton.models.UserRepository;
 import ca.carleton.services.SecurityService;
 import ca.carleton.services.UserService;
+import io.github.bucket4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -17,10 +18,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Controller()
 public class AccountController {
     private final UserService userService;
     private final SecurityService securityService;
+    private final Map<String, Bucket> cache;
+
+    private static final long MAX_API_REQUESTS = 1000;
 
     @Autowired
     UserRepository userRepository;
@@ -30,6 +38,8 @@ public class AccountController {
             UserService userService,
             SecurityService securityService
     ) {
+        cache = new ConcurrentHashMap<>();
+
         this.userService = userService;
         this.securityService = securityService;
     }
@@ -75,13 +85,20 @@ public class AccountController {
 
     @PostMapping("/signup")
     public String signUpSubmit(Model model, @ModelAttribute Customer customer) {
-        String unencodedPassword = customer.getPassword();
-        customer.startExpiration();
-        customer.setSubscription("TRIAL");
-        this.userService.save(customer);
-        securityService.autoLogin(customer.getUsername(), unencodedPassword);
+        User user = userService.findByUsername(customer.getUsername());
 
-        return "redirect:/profile";
+        if(user == null){
+            String unencodedPassword = customer.getPassword();
+            customer.startExpiration();
+            customer.setSubscription("TRIAL");
+            this.userService.save(customer);
+            securityService.autoLogin(customer.getUsername(), unencodedPassword);
+            return "redirect:/profile";
+        }
+
+        model.addAttribute("message", "Username already exists.");
+        return "signup";
+
     }
 
     @GetMapping("/profile")
@@ -92,6 +109,10 @@ public class AccountController {
             model.addAttribute("username", userDetails.getUsername());
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
         }
+
+        Bucket bucket = resolveBucket(user.getUsername());
+        model.addAttribute("remainingApiRequests", bucket.getAvailableTokens());
+        model.addAttribute("maxApiRequests", MAX_API_REQUESTS);
 
         model.addAttribute("customer", user);
         
@@ -123,9 +144,26 @@ public class AccountController {
         if (user == null) {
             model.addAttribute("username", userDetails.getUsername());
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
-        }
+        } else {
+            if (user.getSubscription()) {
+                return new ModelAndView("redirect:/profile");
+            } else {
+                Bucket bucket = resolveBucket(user.getUsername());
 
-        return new ModelAndView("redirect:/profile");
+                if (bucket.tryConsume(1)) {
+                    return new ModelAndView("redirect:/profile");
+                } else {
+                    return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
+                }
+            }
+        }
+    }
+    private Bucket resolveBucket(String username) {
+        return cache.computeIfAbsent(username, this::newBucket);
+    }
+    private Bucket newBucket(String username) {
+        Bandwidth limit = Bandwidth.classic(MAX_API_REQUESTS, Refill.greedy(1000, Duration.ofDays(1)));
+        return Bucket.builder().addLimit(limit).build();
     }
 
     @GetMapping("/upgrade")
