@@ -10,17 +10,31 @@ import java.util.Date;
 public class Customer extends User {
     private String accessExpiration;
     private String subscription;
+    private boolean subBol;
 
     public Customer(String username, String name, String password) {
         super(username, name, password);
+        subBol = false;
     }
 
     public Customer() {
     }
 
+    public boolean getSubBol() { return subBol;}
+
+    public void setSubBol(boolean subBol) {this.subBol = subBol;}
+
     public String getSubscription(){ return subscription; }
 
-    public void setSubscription(String sub) {subscription = sub;}
+    public void setSubscription(String sub) {
+        subscription = sub;
+        if (sub == "PAID") {
+            subBol = true;
+        }
+        if (sub == "TRIAL") {
+            subBol = false;
+        }
+    }
 
     public String getAccessExpiration() {
         return accessExpiration;

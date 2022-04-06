@@ -134,10 +134,12 @@ public class AccountController {
         if(user instanceof Customer) {
             ((Customer) user).setSubscription("PAID");
             userRepository.save(user);
+            model.addAttribute("sub", ((Customer) user).getSubBol());
             model.addAttribute("subscription", ((Customer) user).getSubscription());
         }
         return new ModelAndView("redirect:/profile");
     }
+
 /*
     @GetMapping("/changeSub")
     public ModelAndView changeSub(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String sub, Model model) {
