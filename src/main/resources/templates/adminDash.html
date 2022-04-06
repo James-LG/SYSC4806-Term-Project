@@ -25,7 +25,7 @@
 
         <div class="col-md header-column">
             <a onclick="document.forms['logoutForm'].submit()">
-                <input type="submit" class="button" value="Log out"/>
+                <input type="submit" id="logout" value="Log out"/>
             </a>
         </div>
     </div>
@@ -37,7 +37,7 @@
 
       <div id="context-pane">
         <h3>Customers</h3>
-        <table border="1" width="940" height="100">
+        <table border="1" width="1000" height="100">
           <tr>
               <th> Username </th>
               <th> Name </th>
@@ -54,14 +54,14 @@
                   <div th:if="${customer.getSubscription()}">
                       <span>PAID</span>
                       <a th:href="'/downgrade/' + ${customer.getUsername()}">
-                          <button>Downgrade</button>
+                          <button class="button">Downgrade</button>
                       </a>
                   </div>
 
                   <div th:if="${not customer.getSubscription()}">
                       <span>TRIAL</span>
                       <a th:href="'/upgrade/' + ${customer.getUsername()}">
-                          <button>Upgrade</button>
+                          <button class="button">Upgrade</button>
                       </a>
                   </div>
               </td>

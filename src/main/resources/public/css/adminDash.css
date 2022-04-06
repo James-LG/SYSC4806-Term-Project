@@ -20,6 +20,11 @@ h3 {
     align-items: center;
 }
 
+.button {
+    color: black;
+    margin: 5px;
+}
+
 #header-bar {
   display: flex;
   align-items: center;
