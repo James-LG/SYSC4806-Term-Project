@@ -29,22 +29,27 @@
     <div id="main-window">
         <form action="#" th:action="@{/signup}" th:object="${customer}" method="post">
           <h3>Sign Up</h3>
+          
             <span style="color: red" th:text="${message}"></span>
-          <div id="username-input">
-              <label for="username">Username</label><br/>
-              <input class="inputs" type="text" id="username" th:field="*{username}"></input>
-          </div>
-          <div id="password-input">
-              <label for="password">Password (minimum 8 characters)</label><br/>
-              <input class="inputs" type="password" id="pass" th:field="*{password}" minlength="8" required></input>
-          </div>
+            <div id="username-input">
+                <label for="username">Username</label><br/>
+                <input class="inputs" type="text" id="username" th:field="*{username}"></input>
+            </div>
+            <div id="name-input">
+                <label for="name">Name</label><br/>
+                <input class="inputs" type="text" id="name" th:field="*{name}"></input>
+            </div>
+            <div id="password-input">
+                <label for="password">Password (minimum 8 characters)</label><br/>
+                <input class="inputs" type="password" id="pass" th:field="*{password}" minlength="8" required></input>
+            </div>
 
-          <div id="credentials-submit">
-              <input type="submit" value="Create Account">
-              <p>
-                Already have an account? <a href="/">Sign in</a>
-              </p>
-          </div>
+            <div id="credentials-submit">
+                <input type="submit" value="Create Account">
+                <p>
+                    Already have an account? <a href="/">Sign in</a>
+                </p>
+            </div>
         </form>
     </div>
     <!-- END MAIN WINDOW -->

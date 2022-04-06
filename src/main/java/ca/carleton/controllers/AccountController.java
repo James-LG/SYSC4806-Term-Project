@@ -3,6 +3,7 @@ package ca.carleton.controllers;
 import ca.carleton.models.Admin;
 import ca.carleton.models.Customer;
 import ca.carleton.models.User;
+import ca.carleton.models.UserRepository;
 import ca.carleton.services.SecurityService;
 import ca.carleton.services.UserService;
 import io.github.bucket4j.*;
@@ -30,6 +31,9 @@ public class AccountController {
     private static final long MAX_API_REQUESTS = 1000;
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     public AccountController(
             UserService userService,
             SecurityService securityService
@@ -51,6 +55,9 @@ public class AccountController {
         }
 
         if (authentication.isAuthenticated()) {
+            if( user instanceof Admin ) {
+                return "redirect:/adminDash";
+            }
             return "redirect:/profile";
         }
         return "redirect:/login";
@@ -78,11 +85,12 @@ public class AccountController {
 
     @PostMapping("/signup")
     public String signUpSubmit(Model model, @ModelAttribute Customer customer) {
-
         User user = userService.findByUsername(customer.getUsername());
 
         if(user == null){
             String unencodedPassword = customer.getPassword();
+            customer.startExpiration();
+            customer.setSubscription("TRIAL");
             this.userService.save(customer);
             securityService.autoLogin(customer.getUsername(), unencodedPassword);
             return "redirect:/profile";
@@ -121,12 +129,14 @@ public class AccountController {
         }
 
         if (user instanceof Admin) {
+            model.addAttribute("customers", userService.allCustomer());
             return new ModelAndView("adminDash");
         }
+
         model.addAttribute("username", userDetails.getUsername());
         return new ModelAndView("unauthorized", HttpStatus.NOT_FOUND);
     }
-    
+
     @GetMapping("/makeRequest")
     public ModelAndView requestData(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByUsername(userDetails.getUsername());
@@ -135,19 +145,23 @@ public class AccountController {
             model.addAttribute("username", userDetails.getUsername());
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
         } else {
-            if (user.getSubscription()) {
-                return new ModelAndView("redirect:/profile");
-            } else {
-                Bucket bucket = resolveBucket(user.getUsername());
-
-                if (bucket.tryConsume(1)) {
+            if (user instanceof Customer) {
+                if (((Customer) user).getSubBol()) {
                     return new ModelAndView("redirect:/profile");
                 } else {
-                    return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
+                    Bucket bucket = resolveBucket(user.getUsername());
+
+                    if (bucket.tryConsume(1)) {
+                        return new ModelAndView("redirect:/profile");
+                    } else {
+                        return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
+                    }
                 }
             }
         }
+        return new ModelAndView("redirect:/profile");
     }
+
     private Bucket resolveBucket(String username) {
         return cache.computeIfAbsent(username, this::newBucket);
     }
@@ -156,17 +170,29 @@ public class AccountController {
         return Bucket.builder().addLimit(limit).build();
     }
 
-    @PostMapping("/adminDash")
-    public String changeSub(@ModelAttribute User user, Model model) {
-        user.setSubscription(!user.getSubscription());
-        return "admin";
+    @GetMapping("/upgrade")
+    public ModelAndView upgrade(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userService.findByUsername(userDetails.getUsername());
+        if(user instanceof Customer) {
+            ((Customer) user).setSubscription("PAID");
+            userRepository.save(user);
+            model.addAttribute("sub", ((Customer) user).getSubBol());
+            model.addAttribute("subscription", ((Customer) user).getSubscription());
+        }
+        return new ModelAndView("redirect:/profile");
     }
 
-    @PostMapping("/profile")
-    public String upgrade(@ModelAttribute Customer customer, Model model){
-
-        customer.setSubscription(true);
-
-        return "upgrade";
+/*
+    @GetMapping("/changeSub")
+    public ModelAndView changeSub(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String sub, Model model) {
+        User user = userService.findByUsername(userDetails.getUsername());
+        if(user instanceof Customer) {
+            ((Customer) user).setSubscription(sub);
+            userRepository.save(user);
+            model.addAttribute("subscription", ((Customer) user).getSubscription());
+        }
+        return new ModelAndView("redirect:/adminDash");
     }
+
+ */
 }
