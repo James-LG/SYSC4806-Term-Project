@@ -1,5 +1,6 @@
 package ca.carleton.services;
 
+import ca.carleton.models.Customer;
 import ca.carleton.models.User;
 
 import java.util.List;
@@ -9,7 +10,5 @@ public interface UserService {
 
     User findByUsername(String username);
 
-    Iterable<User> findAll();
-
-    List<User> userAll();
+    List<Customer> allCustomer();
 }

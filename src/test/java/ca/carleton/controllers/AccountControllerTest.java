@@ -45,7 +45,7 @@ public class AccountControllerTest {
     @Test
     public void signUpShouldSaveCustomer() throws Exception {
         // arrange
-        Customer customer = new Customer("bob", "Bob", "password", Date.valueOf("2022-01-01"));
+        Customer customer = new Customer("bob", "Bob", "password");
 
 //        when(userService.save(customer))
 //                .thenReturn(customer);

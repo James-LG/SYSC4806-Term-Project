@@ -39,7 +39,7 @@ public class UserRepositoryTest {
     @Test
     public void findByUsername_shouldReturnSameCustomer() {
         // arrange
-        Customer customer = new Customer("a", "a", "a", Date.valueOf("1984-01-01"));
+        Customer customer = new Customer("a", "a", "a");
 
         userRepository.save(customer);
 
@@ -54,7 +54,7 @@ public class UserRepositoryTest {
     @Test
     public void findByName_shouldReturnEveryUserWithName() {
         // arrange
-        User customer = new Customer("a", "a", "a", Date.valueOf("1984-01-01"));
+        User customer = new Customer("a", "a", "a");
         User admin = new Admin("a2", "a", "a");
 
         userRepository.save(customer);

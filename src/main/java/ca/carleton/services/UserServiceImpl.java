@@ -1,5 +1,6 @@
 package ca.carleton.services;
 
+import ca.carleton.models.Customer;
 import ca.carleton.models.User;
 import ca.carleton.models.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +33,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Iterable<User> findAll() {
-        return userRepository.findAll();
+    public List<Customer> allCustomer() {
+        List<User> users = (List<User>) userRepository.findAll();
+        List<Customer> customers = new ArrayList<>();
+        for (User user : users) {
+            if (user instanceof Customer) {
+                customers.add((Customer) user);
+            }
+        }
+        return customers;
     }
 
-    @Override
-    public List<User> userAll() {
-        List<User> users = new ArrayList<>();
-        userRepository.findAll().forEach(users::add);
-        return users;
-    }
 }

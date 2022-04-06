@@ -76,6 +76,8 @@ public class AccountController {
     @PostMapping("/signup")
     public String signUpSubmit(Model model, @ModelAttribute Customer customer) {
         String unencodedPassword = customer.getPassword();
+        customer.startExpiration();
+        customer.setSubscription("TRIAL");
         this.userService.save(customer);
         securityService.autoLogin(customer.getUsername(), unencodedPassword);
 
@@ -106,12 +108,14 @@ public class AccountController {
         }
 
         if (user instanceof Admin) {
+            model.addAttribute("customers", userService.allCustomer());
             return new ModelAndView("adminDash");
         }
+
         model.addAttribute("username", userDetails.getUsername());
         return new ModelAndView("unauthorized", HttpStatus.NOT_FOUND);
     }
-    
+
     @GetMapping("/makeRequest")
     public ModelAndView requestData(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByUsername(userDetails.getUsername());
@@ -123,30 +127,28 @@ public class AccountController {
 
         return new ModelAndView("redirect:/profile");
     }
-/*
-    @PostMapping("/adminDash")
-    public String changeSub(@ModelAttribute User user, Model model) {
-        user.setSubscription(!user.getSubscription());
-        return "admin";
-    }
-*/
-    @PostMapping("/profile")
-    public String upgrade(@ModelAttribute Customer customer, Model model){
 
-        customer.setSubscription(true);
-
-        return "upgrade";
-    }
-
-    @RequestMapping("/adminDash")
-    public String getAllCustomers(Model model){
-        model.addAttribute("users", userService.userAll());
-        return "users";
+    @GetMapping("/upgrade")
+    public ModelAndView upgrade(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userService.findByUsername(userDetails.getUsername());
+        if(user instanceof Customer) {
+            ((Customer) user).setSubscription("PAID");
+            userRepository.save(user);
+            model.addAttribute("subscription", ((Customer) user).getSubscription());
+        }
+        return new ModelAndView("redirect:/profile");
     }
 /*
-    @PostMapping("/adminDash")
-    private Iterable<User> getAllUsers() {
-        return userService.findAll();
+    @GetMapping("/changeSub")
+    public ModelAndView changeSub(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String sub, Model model) {
+        User user = userService.findByUsername(userDetails.getUsername());
+        if(user instanceof Customer) {
+            ((Customer) user).setSubscription(sub);
+            userRepository.save(user);
+            model.addAttribute("subscription", ((Customer) user).getSubscription());
+        }
+        return new ModelAndView("redirect:/adminDash");
     }
+
  */
 }

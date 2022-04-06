@@ -41,21 +41,31 @@
               <th> End Date </th>
           </tr>
 
-          <tr th:each="user : ${users}">
-              <td th:text="${user.username}"></td>
-              <td th:text="${user.name}"></td>
-              <td th:text="${user.password}"></td>
-              <td th:text="${user.subscription}">
+          <tr th:each="customer : ${customers}">
+              <td th:text="${customer.username}"></td>
+              <td th:text="${customer.name}"></td>
+              <td th:text="${customer.password}"></td>
+              <td>
 
                   <div class="select_dropdown">
                       <select>
-                          <option th:text="${subscription}" id="option1"> Free </option>
-                          <option th:text="${subscription}" id="option2"> Paid </option>
+                          <option th:text="${customer.subscription}" id="option1"> </option>
+                          <option id="option2"></option>
+                          <script>
+                              if (document.getElementById("option1").innerHTML === "TRIAL") {
+                                  document.getElementById("option2").innerHTML = "PAID";
+                              }
+                              if (document.getElementById("option1").innerHTML=== "PAID") {
+                                  document.getElementById("option2").innerHTML = "TRIAL";
+                              }
+                          </script>
                       </select>
                   </div>
 
               </td>
-              <td th:text="${accessExpiration}" id="endDate">12/14/2020</td>
+              <td>
+                  <input type="text" th:attr="value=${customer.accessExpiration}" id="endDate"></input>
+              </td>
           </tr>
         </table>
 
