@@ -123,9 +123,21 @@ public class AccountController {
         if (user == null) {
             model.addAttribute("username", userDetails.getUsername());
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
-        }
+        } else {
+            if (user instanceof Customer) {
+                if (((Customer) user).getSubBol()) {
+                    return new ModelAndView("redirect:/profile");
+                } else {
+                    Bucket bucket = resolveBucket(user.getUsername());
 
-        return new ModelAndView("redirect:/profile");
+                    if (bucket.tryConsume(1)) {
+                        return new ModelAndView("redirect:/profile");
+                    } else {
+                        return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
+                    }
+                }
+            }
+        }
     }
 
     @GetMapping("/upgrade")
