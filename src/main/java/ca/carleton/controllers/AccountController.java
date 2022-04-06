@@ -27,6 +27,8 @@ public class AccountController {
     private final SecurityService securityService;
     private final Map<String, Bucket> cache;
 
+    private static final long MAX_API_REQUESTS = 1000;
+
     @Autowired
     public AccountController(
             UserService userService,
@@ -100,6 +102,10 @@ public class AccountController {
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
         }
 
+        Bucket bucket = resolveBucket(user.getUsername());
+        model.addAttribute("remainingApiRequests", bucket.getAvailableTokens());
+        model.addAttribute("maxApiRequests", MAX_API_REQUESTS);
+
         model.addAttribute("customer", user);
         
         return new ModelAndView("profile");
@@ -134,10 +140,11 @@ public class AccountController {
             } else {
                 Bucket bucket = resolveBucket(user.getUsername());
 
-                if (bucket.tryConsume(1))
+                if (bucket.tryConsume(1)) {
                     return new ModelAndView("redirect:/profile");
-                else
+                } else {
                     return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
+                }
             }
         }
     }
@@ -145,8 +152,8 @@ public class AccountController {
         return cache.computeIfAbsent(username, this::newBucket);
     }
     private Bucket newBucket(String username) {
-        Bandwidth limit = Bandwidth.classic(1000, Refill.greedy(1000, Duration.ofDays(1)));
-        return Bucket4j.builder().addLimit(limit).build();
+        Bandwidth limit = Bandwidth.classic(MAX_API_REQUESTS, Refill.greedy(1000, Duration.ofDays(1)));
+        return Bucket.builder().addLimit(limit).build();
     }
 
     @PostMapping("/adminDash")
