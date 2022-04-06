@@ -1,46 +1,33 @@
 package ca.carleton.models;
 
 import javax.persistence.Entity;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 @Entity
 public class Customer extends User {
-    private String accessExpiration;
-    private String subscription;
-    private boolean subBol;
+    private Date accessExpiration;
+    private boolean subscription;
 
     public Customer(String username, String name, String password) {
         super(username, name, password);
-        subBol = false;
+        subscription = false;
     }
 
     public Customer() {
     }
 
-    public boolean getSubBol() { return subBol;}
+    public boolean getSubscription(){ return subscription; }
 
-    public void setSubBol(boolean subBol) {this.subBol = subBol;}
-
-    public String getSubscription(){ return subscription; }
-
-    public void setSubscription(String sub) {
+    public void setSubscription(boolean sub) {
         subscription = sub;
-        if (sub == "PAID") {
-            subBol = true;
-        }
-        if (sub == "TRIAL") {
-            subBol = false;
-        }
     }
 
-    public String getAccessExpiration() {
+    public Date getAccessExpiration() {
         return accessExpiration;
     }
 
-    public void setAccessExpiration(String accessExpiration) {
+    public void setAccessExpiration(Date accessExpiration) {
         this.accessExpiration = accessExpiration;
     }
 
@@ -49,9 +36,7 @@ public class Customer extends User {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.MONTH, 1);
-        Date expiration = cal.getTime();
-        DateFormat expirationFormat = new SimpleDateFormat("MM/dd/yyyy");
-        accessExpiration = expirationFormat.format(expiration);
+        accessExpiration = cal.getTime();
     }
 
 }

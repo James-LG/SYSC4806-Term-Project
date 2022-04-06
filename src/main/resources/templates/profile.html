@@ -11,27 +11,19 @@
 </head>
 
 <body>
-    <!-- HEADER BAR -->
-    <div id="header-bar">
-        <div class="wrapper header-wrapper" id="left-header-bar">
-        <div class="col-md header-column">
-            <h1>AppX</h1>
-        </div>
-    </div>
     <form id="logoutForm" method="POST" action="/logout">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
     </form>
-    <div class="wrapper header-wrapper" id="right-header-bar">
-        <div class="col-md header-column">
-            <a href="/upgrade">
-                <input type="submit" style="color: black" id="upgrade" value="Upgrade to Premium"></input>
-            </a>
-
-            <a onclick="document.forms['logoutForm'].submit()">
-                <input type="submit" class="button" value="Log out"></input>
-            </a>
+    <!-- HEADER BAR -->
+    <div id="header-bar">
+        <div class="wrapper header-wrapper" id="left-header-bar">
+            <div class="col-md header-column">
+                <h1>AppX</h1>
+            </div>
         </div>
-    </div>
+        <a onclick="document.forms['logoutForm'].submit()">
+            <input type="submit" class="button" value="Log out"/>
+        </a>
     </div>
     <!-- END HEADER BAR -->
 
@@ -41,21 +33,24 @@
       <div id="context-pane">
           <h3>Profile</h3>
           <div> Username:
-            <p class="profile-info" th:text="${customer.username}"> </p>
+            <p class="profile-info" th:text="${user.getUsername()}"> </p>
           </div>
           <div> Name:
-              <p class="profile-info" th:text="${customer.name}"> </p>
+              <p class="profile-info" th:text="${user.getName()}"> </p>
           </div>
           <div> Password:
-            <p class="profile-info" th:text="${customer.password}"> </p>
+            <p class="profile-info" th:text="${user.getPassword()}"> </p>
           </div>
-          <div> Subscription:
-            <p class="profile-info" th:text="${customer.subscription}" id="subscription"> </p>
+          <div th:if="${isCustomer}">
+              <div> Subscription:
+                  <p class="profile-info" th:if="${user.subscription}" id="subscription">PAID</p>
+                  <p class="profile-info" th:if="${not user.subscription}" id="subscription">TRIAL</p>
+              </div>
+              <div> Expiration Date:
+                  <p class="profile-info" th:text="${#calendars.format(user.accessExpiration, 'dd MMMM yyyy')}" id="date"> </p>
+              </div>
+              <div th:if="${not user.subscription}" th:text="'Remaining API Requests: ' + ${remainingApiRequests} + ' / ' + ${maxApiRequests}"></div>
           </div>
-          <div> Expiration Date:
-              <p class="profile-info" th:text="${customer.accessExpiration}" id="date"> </p>
-          </div>
-          <div th:if="${not customer.subBol}" th:text="'Remaining API Requests: ' + ${remainingApiRequests} + ' / ' + ${maxApiRequests}"></div>
       </div>
         <a href="/makeRequest">
             <input type="submit" style="color: black" id="makeRequest" value="Make a Request"></input>
