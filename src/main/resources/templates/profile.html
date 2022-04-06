@@ -45,9 +45,10 @@
           <h3>Profile</h3>
           <p class="profile-info" th:text="${customer.username}" id="username"> </p>
           <p class="profile-info" th:text="${customer.password}" id="password"> </p>
-          <br> Subscription:
-            <div class="profile-info" th:text="${customer.subscription}" id="subscription"> FREE </div>
-          </br>
+          <br>
+          Subscription:
+          <div class="profile-info" th:text="${customer.subscription}" id="subscription"> FREE </div>
+          <div th:if="${not customer.subscription}" th:text="'Remaining API Requests: ' + ${remainingApiRequests} + ' / ' + ${maxApiRequests}"></div>
       </div>
         <a href="/makeRequest">
             <input type="submit" id="makeRequest" value="Make a Request"></input>
