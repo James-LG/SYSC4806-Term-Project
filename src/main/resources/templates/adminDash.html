@@ -44,6 +44,7 @@
               <th> Password </th>
               <th> Subscription </th>
               <th> End Date </th>
+              <th> API Access Limit </th>
           </tr>
 
           <tr th:each="customer : ${customers}">
@@ -68,8 +69,19 @@
               <td>
                   <span th:text="${#calendars.format(customer.getAccessExpiration(), 'dd MMMM yyyy')}" id="endDate"></span>
               </td>
+              <td>
+                  <input type="text" th:value="${customer.getAccessLimit()}" th:id="'access-' + ${customer.getUsername()}"/>
+                  <button class="button" th:id="${customer.getUsername()}" onclick="changeAccess(this.id)">Submit</button>
+              </td>
           </tr>
         </table>
+          <script>
+              function changeAccess(username) {
+                  let inputId = 'access-' + username;
+                  let inputElement = document.getElementById(inputId);
+                  window.location = '/changeAccess/' + username + '?value=' + inputElement.value;
+              }
+          </script>
 
       </div>
     </div>

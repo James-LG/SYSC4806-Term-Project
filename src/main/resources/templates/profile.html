@@ -49,7 +49,7 @@
               <div> Expiration Date:
                   <p class="profile-info" th:text="${#calendars.format(user.accessExpiration, 'dd MMMM yyyy')}" id="date"> </p>
               </div>
-              <div th:if="${not user.subscription}" th:text="'Remaining API Requests: ' + ${remainingApiRequests} + ' / ' + ${maxApiRequests}"></div>
+              <div th:text="'Remaining API Requests: ' + ${remainingApiRequests} + ' / ' + ${maxApiRequests}"></div>
           </div>
       </div>
         <a href="/makeRequest">

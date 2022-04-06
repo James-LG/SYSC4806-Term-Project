@@ -30,9 +30,6 @@ public class AccountController {
     private final SecurityService securityService;
     private final Map<String, Bucket> cache;
 
-    private static final long MAX_API_REQUESTS = 1000;
-
-
     @Autowired
     public AccountController(
             UserService userService,
@@ -89,10 +86,11 @@ public class AccountController {
     public String signUpSubmit(Model model, @ModelAttribute Customer customer) {
         User user = userService.findByUsername(customer.getUsername());
 
-        if(user == null){
+        if (user == null){
             String unencodedPassword = customer.getPassword();
             customer.startExpiration();
             customer.setSubscription(false);
+            customer.setAccessLimit(Customer.TRIAL_ACCESS_LIMIT);
             this.userService.save(customer);
             securityService.autoLogin(customer.getUsername(), unencodedPassword);
             return "redirect:/profile";
@@ -116,16 +114,16 @@ public class AccountController {
             if (customer.getAccessExpiration().before(currentDate)) {
                 return new ModelAndView("unauthorized", HttpStatus.FORBIDDEN);
             }
+
+            Bucket bucket = resolveBucket(customer);
+            model.addAttribute("remainingApiRequests", bucket.getAvailableTokens());
+            model.addAttribute("maxApiRequests", customer.getAccessLimit());
         }
 
         if (user == null) {
             model.addAttribute("username", userDetails.getUsername());
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
         }
-
-        Bucket bucket = resolveBucket(user.getUsername());
-        model.addAttribute("remainingApiRequests", bucket.getAvailableTokens());
-        model.addAttribute("maxApiRequests", MAX_API_REQUESTS);
 
         model.addAttribute("user", user);
         
@@ -160,38 +158,64 @@ public class AccountController {
         } else {
             if (user instanceof Customer) {
                 Customer customer = (Customer)user;
-                if (customer.getSubscription()) {
+                Bucket bucket = resolveBucket(customer);
+
+                if (bucket.tryConsume(1)) {
                     return new ModelAndView("redirect:/profile");
                 } else {
-                    Bucket bucket = resolveBucket(user.getUsername());
-
-                    if (bucket.tryConsume(1)) {
-                        return new ModelAndView("redirect:/profile");
-                    } else {
-                        return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
-                    }
+                    model.addAttribute("username", userDetails.getUsername());
+                    return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
                 }
             }
         }
         return new ModelAndView("redirect:/profile");
     }
 
-    private Bucket resolveBucket(String username) {
-        return cache.computeIfAbsent(username, this::newBucket);
+    private Bucket resolveBucket(Customer customer) {
+        Bucket bucket = cache.getOrDefault(customer.getUsername(), null);
+        if (bucket == null) {
+            bucket = newBucket(customer);
+            cache.putIfAbsent(customer.getUsername(), bucket);
+        }
+
+        return bucket;
     }
-    private Bucket newBucket(String username) {
-        Bandwidth limit = Bandwidth.classic(MAX_API_REQUESTS, Refill.greedy(1000, Duration.ofDays(1)));
+
+    private Bucket newBucket(Customer customer) {
+        Bandwidth limit = Bandwidth.classic(customer.getAccessLimit(), Refill.greedy(customer.getAccessLimit(), Duration.ofDays(1)));
         return Bucket.builder().addLimit(limit).build();
     }
 
-    @GetMapping("/upgrade/{username}")
-    public ModelAndView upgrade(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String username, Model model) {
-        return changeSubscription(true, userDetails, username, model);
+    @GetMapping("/changeAccess/{targetUsername}")
+    public ModelAndView changeAccess(@AuthenticationPrincipal UserDetails authUserDetails, @PathVariable String targetUsername, @RequestParam int value, Model model) {
+        User authUser = userService.findByUsername(authUserDetails.getUsername());
+
+        if (authUser instanceof Admin) {
+            User targetUser = userService.findByUsername(targetUsername);
+
+            if (targetUser instanceof Customer) {
+                Customer customer = (Customer)targetUser;
+                customer.setAccessLimit(value);
+                cache.replace(customer.getUsername(), newBucket(customer));
+
+                userRepository.save(customer);
+
+                return new ModelAndView("redirect:/adminDash");
+            }
+        }
+
+        model.addAttribute("username", authUserDetails.getUsername());
+        return new ModelAndView("unauthorized", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/downgrade/{username}")
-    public ModelAndView downgrade(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String username, Model model) {
-        return changeSubscription(false, userDetails, username, model);
+    @GetMapping("/upgrade/{targetUsername}")
+    public ModelAndView upgrade(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String targetUsername, Model model) {
+        return changeSubscription(true, userDetails, targetUsername, model);
+    }
+
+    @GetMapping("/downgrade/{targetUsername}")
+    public ModelAndView downgrade(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String targetUsername, Model model) {
+        return changeSubscription(false, userDetails, targetUsername, model);
     }
 
     private ModelAndView changeSubscription(boolean targetSubscription, UserDetails authUserDetails, String targetUsername, Model model) {
@@ -203,12 +227,22 @@ public class AccountController {
             if (targetUser instanceof Customer) {
                 Customer customer = (Customer)targetUser;
                 customer.setSubscription(targetSubscription);
+
+                // Adjust customer's access limits
+                if (customer.getSubscription()) {
+                    customer.setAccessLimit(Customer.PAID_ACCESS_LIMIT);
+                } else {
+                    customer.setAccessLimit(Customer.TRIAL_ACCESS_LIMIT);
+                }
+                cache.replace(customer.getUsername(), newBucket(customer));
+
                 userRepository.save(customer);
-                model.addAttribute("subscription", customer.getSubscription());
+
                 return new ModelAndView("redirect:/adminDash");
             }
         }
 
+        model.addAttribute("username", authUserDetails.getUsername());
         return new ModelAndView("unauthorized", HttpStatus.FORBIDDEN);
     }
 
