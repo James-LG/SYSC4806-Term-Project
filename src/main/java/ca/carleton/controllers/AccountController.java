@@ -18,23 +18,24 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller()
 public class AccountController {
     private final UserService userService;
     private final SecurityService securityService;
-    private final Bucket bucket;
+    private final Map<String, Bucket> cache;
 
     @Autowired
     public AccountController(
             UserService userService,
             SecurityService securityService
     ) {
-        Bandwidth limit = Bandwidth.classic(1000, Refill.greedy(1000, Duration.ofDays(1)));
+        cache = new ConcurrentHashMap<>();
 
         this.userService = userService;
         this.securityService = securityService;
-        this.bucket = Bucket4j.builder().addLimit(limit).build();
     }
 
     @GetMapping("/")
@@ -131,12 +132,21 @@ public class AccountController {
             if (user.getSubscription()) {
                 return new ModelAndView("redirect:/profile");
             } else {
+                Bucket bucket = resolveBucket(user.getUsername());
+
                 if (bucket.tryConsume(1))
                     return new ModelAndView("redirect:/profile");
                 else
                     return new ModelAndView("too-many-requests", HttpStatus.TOO_MANY_REQUESTS);
             }
         }
+    }
+    private Bucket resolveBucket(String username) {
+        return cache.computeIfAbsent(username, this::newBucket);
+    }
+    private Bucket newBucket(String username) {
+        Bandwidth limit = Bandwidth.classic(1000, Refill.greedy(1000, Duration.ofDays(1)));
+        return Bucket4j.builder().addLimit(limit).build();
     }
 
     @PostMapping("/adminDash")
