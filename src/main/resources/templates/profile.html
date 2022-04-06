@@ -55,6 +55,7 @@
           <div> Expiration Date:
               <p class="profile-info" th:text="${customer.accessExpiration}" id="date"> </p>
           </div>
+          <div th:if="${not customer.subBol}" th:text="'Remaining API Requests: ' + ${remainingApiRequests} + ' / ' + ${maxApiRequests}"></div>
       </div>
         <a href="/makeRequest">
             <input type="submit" style="color: black" id="makeRequest" value="Make a Request"></input>
