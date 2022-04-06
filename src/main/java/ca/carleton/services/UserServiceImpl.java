@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Customer> allCustomer() {
+    public List<Customer> getAllCustomers() {
         List<User> users = (List<User>) userRepository.findAll();
         List<Customer> customers = new ArrayList<>();
         for (User user : users) {

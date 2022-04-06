@@ -19,28 +19,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.Duration;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Controller()
 public class AccountController {
     private final UserService userService;
+    private final UserRepository userRepository;
     private final SecurityService securityService;
     private final Map<String, Bucket> cache;
 
     private static final long MAX_API_REQUESTS = 1000;
 
-    @Autowired
-    UserRepository userRepository;
 
     @Autowired
     public AccountController(
             UserService userService,
+            UserRepository userRepository,
             SecurityService securityService
     ) {
         cache = new ConcurrentHashMap<>();
 
         this.userService = userService;
+        this.userRepository = userRepository;
         this.securityService = securityService;
     }
 
@@ -90,7 +92,7 @@ public class AccountController {
         if(user == null){
             String unencodedPassword = customer.getPassword();
             customer.startExpiration();
-            customer.setSubscription("TRIAL");
+            customer.setSubscription(false);
             this.userService.save(customer);
             securityService.autoLogin(customer.getUsername(), unencodedPassword);
             return "redirect:/profile";
@@ -105,6 +107,17 @@ public class AccountController {
     public ModelAndView profile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByUsername(userDetails.getUsername());
 
+        if (user instanceof Customer) {
+            model.addAttribute("isCustomer", true);
+            Customer customer = (Customer)user;
+            Date currentDate = new Date();
+
+            // If access has expired, access is unauthorized
+            if (customer.getAccessExpiration().before(currentDate)) {
+                return new ModelAndView("unauthorized", HttpStatus.FORBIDDEN);
+            }
+        }
+
         if (user == null) {
             model.addAttribute("username", userDetails.getUsername());
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
@@ -114,7 +127,7 @@ public class AccountController {
         model.addAttribute("remainingApiRequests", bucket.getAvailableTokens());
         model.addAttribute("maxApiRequests", MAX_API_REQUESTS);
 
-        model.addAttribute("customer", user);
+        model.addAttribute("user", user);
         
         return new ModelAndView("profile");
     }
@@ -129,12 +142,12 @@ public class AccountController {
         }
 
         if (user instanceof Admin) {
-            model.addAttribute("customers", userService.allCustomer());
+            model.addAttribute("customers", userService.getAllCustomers());
             return new ModelAndView("adminDash");
         }
 
         model.addAttribute("username", userDetails.getUsername());
-        return new ModelAndView("unauthorized", HttpStatus.NOT_FOUND);
+        return new ModelAndView("unauthorized", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/makeRequest")
@@ -146,7 +159,8 @@ public class AccountController {
             return new ModelAndView("profile-not-found", HttpStatus.NOT_FOUND);
         } else {
             if (user instanceof Customer) {
-                if (((Customer) user).getSubBol()) {
+                Customer customer = (Customer)user;
+                if (customer.getSubscription()) {
                     return new ModelAndView("redirect:/profile");
                 } else {
                     Bucket bucket = resolveBucket(user.getUsername());
@@ -170,29 +184,32 @@ public class AccountController {
         return Bucket.builder().addLimit(limit).build();
     }
 
-    @GetMapping("/upgrade")
-    public ModelAndView upgrade(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        User user = userService.findByUsername(userDetails.getUsername());
-        if(user instanceof Customer) {
-            ((Customer) user).setSubscription("PAID");
-            userRepository.save(user);
-            model.addAttribute("sub", ((Customer) user).getSubBol());
-            model.addAttribute("subscription", ((Customer) user).getSubscription());
-        }
-        return new ModelAndView("redirect:/profile");
+    @GetMapping("/upgrade/{username}")
+    public ModelAndView upgrade(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String username, Model model) {
+        return changeSubscription(true, userDetails, username, model);
     }
 
-/*
-    @GetMapping("/changeSub")
-    public ModelAndView changeSub(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String sub, Model model) {
-        User user = userService.findByUsername(userDetails.getUsername());
-        if(user instanceof Customer) {
-            ((Customer) user).setSubscription(sub);
-            userRepository.save(user);
-            model.addAttribute("subscription", ((Customer) user).getSubscription());
-        }
-        return new ModelAndView("redirect:/adminDash");
+    @GetMapping("/downgrade/{username}")
+    public ModelAndView downgrade(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String username, Model model) {
+        return changeSubscription(false, userDetails, username, model);
     }
 
- */
+    private ModelAndView changeSubscription(boolean targetSubscription, UserDetails authUserDetails, String targetUsername, Model model) {
+        User authUser = userService.findByUsername(authUserDetails.getUsername());
+
+        if (authUser instanceof Admin) {
+            User targetUser = userService.findByUsername(targetUsername);
+
+            if (targetUser instanceof Customer) {
+                Customer customer = (Customer)targetUser;
+                customer.setSubscription(targetSubscription);
+                userRepository.save(customer);
+                model.addAttribute("subscription", customer.getSubscription());
+                return new ModelAndView("redirect:/adminDash");
+            }
+        }
+
+        return new ModelAndView("unauthorized", HttpStatus.FORBIDDEN);
+    }
+
 }
