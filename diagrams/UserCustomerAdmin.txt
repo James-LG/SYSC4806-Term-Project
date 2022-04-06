@@ -16,12 +16,15 @@ abstract class User{
 
 class Customer{
 -accessExpiration: Date
+-accessLimit: int
 -subscription: Boolean
 +Customer(username: String, name: String, password: String)
 +getSubscription(): Boolean
 +setSubscription(Boolean sub): void
 +getAccessExpiration(): Date
 +setAccessExpiration(Date accessExpiration): void
++getAccessLimit(): int
++setAccessLimit(int accessLimit): void
 +startExpiration(): void
 }
 
